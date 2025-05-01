@@ -12,12 +12,12 @@ client.on("data", (data) => {
 
 client.on("error", (err) => {
   console.error("Connection error:", err.message);
-  process.exit(1);
+  process.exit();
 });
 
 client.on("end", () => {
   console.log("Disconnected from server");
-  process.exit(0);
+  process.exit();
 });
 
 process.stdin.setEncoding("utf8");
@@ -28,7 +28,7 @@ process.stdin.on("data", (data) => {
   if (message.toLowerCase() === "exit") {
     console.log("Disconnecting from server...");
     client.end();
-    process.exit(0);
+    process.exit();
   }
 
   client.write(message);
@@ -37,5 +37,5 @@ process.stdin.on("data", (data) => {
 process.on("SIGINT", () => {
   console.log("\nDisconnecting from server...");
   client.end();
-  process.exit(0);
+  process.exit();
 });
