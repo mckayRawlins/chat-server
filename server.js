@@ -24,7 +24,7 @@ const server = net.createServer((client) => {
 
   client.write(`Welcome to the chat room, ${clientName}!\n`);
   client.write(
-    `Available commands:\n  /w [username] [message] - Send private message\n  /username [new_name] - Change your username\n  /kick [username] [admin_password] - Kick a user (admin only)\n`
+    `Available commands:\n  /w [username] [message] - Send private message\n  /username [new_name] - Change your username\n  /kick [username] [admin_password] - Kick a user (admin only)\n /clientlist - View connected clients\n`
   );
 
   broadcastMessage(client, `${clientName} has joined the chat.`);
@@ -83,6 +83,9 @@ function handleCommand(client, message) {
       break;
     case "/kick":
       handleKick(client, parts);
+      break;
+    case "/clientlist":
+      handleClientList(client);
       break;
     default:
       client.write(`Unknown command: ${command}\n`);
@@ -164,6 +167,29 @@ function handleUsernameChange(client, parts) {
   broadcastMessage(client, `${currentName} is now konwn as ${newName}`);
 
   log(`${currentName} changed username to ${newName}`);
+}
+
+function handleClientList(client) {
+  const requestingUser = clients.get(client);
+
+  const clientNames = Array.from(clients.values()).sort();
+  const totalClients = clientNames.length;
+
+  let response = `\n=== Connected Clients (${totalClients}) ===\n`;
+
+  clientNames.forEach((name) => {
+    if (name === requestingUser) {
+      response += `${name} (you)\n`;
+    } else {
+      response += `${name}\n`;
+    }
+  });
+
+  response += `=====================\n`;
+
+  client.write(response);
+
+  log(`${requestingUser} requested client list`);
 }
 
 function handleKick(client, parts) {
